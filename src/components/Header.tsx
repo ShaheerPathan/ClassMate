@@ -1,35 +1,19 @@
 "use client"
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation' 
-import { signIn, signOut, useSession } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+
 
 export function Header() {
-  const pathname = usePathname()
-  const router = useRouter()
   const { data: session } = useSession()
-  const isMarketing = pathname === '/'
 
-  const handleNavigation = (path: string) => {
-    router.push(path)
-  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#EFE9D5]/80 backdrop-blur-sm border-b-2 border-border h-14">
@@ -48,7 +32,7 @@ export function Header() {
           </div>
           
           <nav className="flex items-center space-x-2 sm:space-x-4">
-            {isMarketing ? (
+           
               <>
                 <TooltipProvider>
                   <Tooltip>
@@ -83,43 +67,6 @@ export function Header() {
                   </div>
                 ) : null}
               </>
-            ) : null}
-
-            {session ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-full">
-                    <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-[#F2EDE0]">
-                      <AvatarImage 
-                        src={session.user?.image || "/images/default-avatar.png"} 
-                        alt={session.user?.name || '@user'} 
-                      />
-                      <AvatarFallback>{session.user?.name?.[0] || 'U'}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-48 sm:w-56 border-2 border-black" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-xs sm:text-sm font-medium leading-none">{session.user?.name}</p>
-                      <p className="text-xs leading-none text-muted-foreground truncate">
-                        {session.user?.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem onClick={() => handleNavigation('/profile')} className="text-xs sm:text-sm">
-                      Profile
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut()} className="text-xs sm:text-sm">
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : null}
           </nav>
         </div>
       </div>

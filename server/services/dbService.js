@@ -1,5 +1,5 @@
-const CuratedResource = require('../models/curatedResource');
-const StudyPlan = require('../models/studyPlan');
+import CuratedResource from '../models/curatedResource.js';
+import StudyPlan from '../models/studyPlan.js';
 
 async function saveResources(userId, subject, curatedData) {
   try {
@@ -46,7 +46,4 @@ async function savePlan(userId, planData) {
   }
 }
 
-module.exports = {
-  saveResources,
-  savePlan
-};
+export { saveResources, savePlan };

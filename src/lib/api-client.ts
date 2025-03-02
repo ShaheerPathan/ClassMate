@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.EXPRESS_BACKEND_URL || 'http://localhost:5000';
 
 // Add this line to debug the URL
 console.log('API Base URL:', API_BASE_URL);

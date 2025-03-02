@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const dailyTaskSchema = new mongoose.Schema({
   day: {
@@ -67,4 +67,4 @@ const studyPlanSchema = new mongoose.Schema({
 studyPlanSchema.index({ userId: 1, isActive: 1 });
 studyPlanSchema.index({ userId: 1, 'overview.subject': 1 });
 
-module.exports = mongoose.model('StudyPlan', studyPlanSchema); 
+export default mongoose.model('StudyPlan', studyPlanSchema); 

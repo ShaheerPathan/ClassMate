@@ -4,9 +4,9 @@ import Image from "next/image";
 
 const reviews = [
   {
-    name: "Sarah Chen",
-    username: "@sarahc",
-    body: "This platform has transformed how I study. The AI-powered resource recommendations are spot-on!",
+    name: "Ayush - oss/acc",
+    username: "@ayushon_twt",
+    body: "Design language looks nice",
     img: "https://avatar.vercel.sh/sarahc",
   },
   {

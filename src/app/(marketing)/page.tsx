@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { ReviewMarquee } from "@/components/ReviewMarquee"
 import { Video } from "@/components/Video"
+import { FaqSection } from "@/components/sections/FaqSection"
 
 export default function Page() {
   const { data: session } = useSession()
@@ -62,6 +63,8 @@ export default function Page() {
         </h2>
         <ReviewMarquee />
       </section>
+
+      <FaqSection />
     </div>
   )
 }
