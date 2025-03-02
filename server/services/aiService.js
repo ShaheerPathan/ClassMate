@@ -68,7 +68,6 @@ async function searchTavily(subject) {
           "freecodecamp.org",
           "w3schools.com",
           "developer.mozilla.org",
-          "docs.microsoft.com",
           "tutorialspoint.com",
           "geeksforgeeks.org",
           "youtube.com",

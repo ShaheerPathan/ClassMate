@@ -3,9 +3,11 @@
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, Brain, FileText, Home, Timer, Users, LogOut } from "lucide-react"
+import { BookOpen, Brain, FileText, Home, Timer, Users, LogOut, PanelLeftClose, PanelLeft } from "lucide-react"
 import { signOut, useSession } from 'next-auth/react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
 
 interface NavItem {
   label: string;
@@ -20,9 +22,19 @@ interface NavSection {
   items: NavItem[];
 }
 
-export function DashboardNav({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+interface DashboardNavProps extends React.HTMLAttributes<HTMLDivElement> {
+  onCollapse?: (collapsed: boolean) => void;
+}
+
+export function DashboardNav({ className, onCollapse, ...props }: DashboardNavProps) {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+    onCollapse?.(!isCollapsed);
+  }
 
   const navSections: NavSection[] = [
     {
@@ -72,7 +84,7 @@ export function DashboardNav({ className, ...props }: React.HTMLAttributes<HTMLD
           label: 'Log out',
           icon: LogOut,
           href: '#',
-          onClick: () => signOut()
+          onClick: () => signOut({ callbackUrl: '/' })
         }
       ]
     }
@@ -81,7 +93,8 @@ export function DashboardNav({ className, ...props }: React.HTMLAttributes<HTMLD
   return (
     <nav 
       className={cn(
-        "h-full bg-background text-foreground overflow-y-auto",
+        "relative h-full bg-background text-foreground overflow-y-auto transition-all duration-300",
+        isCollapsed ? "md:w-20" : "md:w-64",
         className
       )} 
       {...props}
@@ -89,39 +102,70 @@ export function DashboardNav({ className, ...props }: React.HTMLAttributes<HTMLD
       <div className="px-3 py-2">
         {/* Desktop View */}
         <div className="hidden md:block">
-          <div className="px-4 py-2 mb-4">
-            <Avatar className="h-10 w-10 bg-[#F2EDE0]">
-              <AvatarImage 
-                src={session?.user?.image || "/images/default-avatar.png"} 
-                alt={session?.user?.name || '@user'} 
-              />
-              <AvatarFallback>{session?.user?.name?.[0] || 'U'}</AvatarFallback>
-            </Avatar>
-            {session?.user?.name && (
-              <p className="mt-2 text-sm font-medium">Welcome, {session.user.name}</p>
-            )}
+          <div className={cn("mb-6", isCollapsed ? "px-2" : "px-4")}>
+            <div className="flex flex-col items-center mb-4">
+              <Avatar className="h-10 w-10 bg-[#F2EDE0]">
+                <AvatarImage 
+                  src={session?.user?.image || "/images/default-avatar.png"} 
+                  alt={session?.user?.name || '@user'} 
+                />
+                <AvatarFallback>{session?.user?.name?.[0] || 'U'}</AvatarFallback>
+              </Avatar>
+              {!isCollapsed && session?.user?.name && (
+                <p className="mt-2 text-sm font-medium text-center">Welcome, {session.user.name}</p>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "w-full flex items-center justify-center gap-2",
+                isCollapsed && "px-0"
+              )}
+              onClick={toggleCollapse}
+            >
+              {isCollapsed ? (
+                <PanelLeft className="h-4 w-4" />
+              ) : (
+                <>
+                  <PanelLeftClose className="h-4 w-4" />
+                </>
+              )}
+            </Button>
           </div>
           {navSections.map((section, idx) => (
-            <div key={section.title} className={cn("py-2", idx !== 0 && "mt-6")}>
-              <h3 className="px-4 text-xs font-medium text-muted-foreground mb-2">
-                {section.title}
-              </h3>
-              <div className="space-y-2">
+            <div key={section.title} className={cn(
+              "py-2",
+              idx !== 0 && "mt-4",
+              isCollapsed && "px-0"
+            )}>
+              {!isCollapsed && (
+                <h3 className="px-4 text-xs font-medium text-muted-foreground mb-2">
+                  {section.title}
+                </h3>
+              )}
+              <div className="space-y-1">
                 {section.items.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={item.onClick}
                     className={cn(
-                      "flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out hover:bg-muted hover:text-foreground hover:shadow-md border-r-2 border-transparent hover:border-primary hover:translate-x-1",
+                      "flex items-center gap-3 rounded-md text-sm font-medium transition-all duration-200 ease-in-out hover:bg-muted hover:text-foreground hover:shadow-md border-r-2 border-transparent",
                       pathname === item.href 
                         ? "text-foreground bg-muted border-r-2 border-primary" 
-                        : "text-muted-foreground"
+                        : "text-muted-foreground hover:border-primary",
+                      isCollapsed 
+                        ? "justify-center px-2 py-2.5" 
+                        : "px-4 py-2.5"
                     )}
                   >
-                    <item.icon className="h-4 w-4 text-foreground" />
-                    <span>{item.label}</span>
-                    {item.badge && (
+                    <item.icon className={cn(
+                      "h-4 w-4",
+                      pathname === item.href ? "text-primary" : "text-foreground"
+                    )} />
+                    {!isCollapsed && <span>{item.label}</span>}
+                    {!isCollapsed && item.badge && (
                       <span className="ml-auto text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
                         {item.badge}
                       </span>
