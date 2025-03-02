@@ -1,8 +1,13 @@
-const Groq = require('groq-sdk');
-const StudyPlan = require('../models/studyPlan');
-const NodeCache = require('node-cache');
-const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+import Groq from 'groq-sdk';
+import StudyPlan from '../models/studyPlan.js';
+import NodeCache from 'node-cache';
+import rateLimit from 'express-rate-limit';
+import dotenv from 'dotenv';
+import fetch from 'node-fetch';
+import https from 'https';
+
+// Initialize dotenv
+dotenv.config();
 
 // Debug log to verify environment variables
 console.log('Environment check:', {
@@ -27,6 +32,11 @@ const aiRateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 100, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again after an hour'
+});
+
+// Create a custom HTTPS agent that doesn't reject unauthorized certificates
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false
 });
 
 async function searchTavily(subject) {
@@ -66,7 +76,8 @@ async function searchTavily(subject) {
           "udemy.com",
           "udacity.com",
         ]
-      })
+      }),
+      agent: httpsAgent // Use our custom HTTPS agent
     });
 
     if (!response.ok) {
@@ -294,9 +305,5 @@ async function generatePlan(subject, userId, examDate) {
   }
 }
 
-module.exports = {
-  searchTavily,
-  curateResources, // Changed from curateResourcesWithGroq to match the function name
-  generatePlan,
-  aiRateLimiter
-}; 
+// Export the functions and rate limiter
+export { aiRateLimiter, searchTavily, curateResources, generatePlan }; 

@@ -1,7 +1,6 @@
-const express = require('express');
-const { searchTavily, curateResources } = require('../services/aiService');
-const { saveResources } = require('../services/dbService');
-const CuratedResource = require('../models/curatedResource');
+import express from 'express';
+import { searchTavily, curateResources } from '../services/aiService.js';
+import CuratedResource from '../models/curatedResource.js';
 
 const router = express.Router();
 
@@ -155,4 +154,4 @@ router.delete('/:resourceId', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

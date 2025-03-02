@@ -3,13 +3,16 @@
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, Brain, FileText, Home, Timer, Users } from "lucide-react"
+import { BookOpen, Brain, FileText, Home, Timer, Users, LogOut } from "lucide-react"
+import { signOut, useSession } from 'next-auth/react'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface NavItem {
   label: string;
   icon:  React.ComponentType<React.SVGProps<SVGSVGElement>>;
   href: string;
   badge?: string;
+  onClick?: () => void;
 }
 
 interface NavSection {
@@ -19,6 +22,7 @@ interface NavSection {
 
 export function DashboardNav({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   const navSections: NavSection[] = [
     {
@@ -60,6 +64,17 @@ export function DashboardNav({ className, ...props }: React.HTMLAttributes<HTMLD
           href: '/notes',
         },
       ]
+    },
+    {
+      title: "Account",
+      items: [
+        {
+          label: 'Log out',
+          icon: LogOut,
+          href: '#',
+          onClick: () => signOut()
+        }
+      ]
     }
   ]
 
@@ -74,6 +89,18 @@ export function DashboardNav({ className, ...props }: React.HTMLAttributes<HTMLD
       <div className="px-3 py-2">
         {/* Desktop View */}
         <div className="hidden md:block">
+          <div className="px-4 py-2 mb-4">
+            <Avatar className="h-10 w-10 bg-[#F2EDE0]">
+              <AvatarImage 
+                src={session?.user?.image || "/images/default-avatar.png"} 
+                alt={session?.user?.name || '@user'} 
+              />
+              <AvatarFallback>{session?.user?.name?.[0] || 'U'}</AvatarFallback>
+            </Avatar>
+            {session?.user?.name && (
+              <p className="mt-2 text-sm font-medium">Welcome, {session.user.name}</p>
+            )}
+          </div>
           {navSections.map((section, idx) => (
             <div key={section.title} className={cn("py-2", idx !== 0 && "mt-6")}>
               <h3 className="px-4 text-xs font-medium text-muted-foreground mb-2">
@@ -84,6 +111,7 @@ export function DashboardNav({ className, ...props }: React.HTMLAttributes<HTMLD
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={item.onClick}
                     className={cn(
                       "flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out hover:bg-muted hover:text-foreground hover:shadow-md border-r-2 border-transparent hover:border-primary hover:translate-x-1",
                       pathname === item.href 
@@ -112,6 +140,7 @@ export function DashboardNav({ className, ...props }: React.HTMLAttributes<HTMLD
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={item.onClick}
                 className={cn(
                   "flex flex-col items-center justify-center p-2 min-w-[70px] rounded-md transition-all duration-200 ease-in-out hover:bg-muted hover:text-foreground hover:shadow-sm border-b-2 border-transparent hover:border-primary",
                   pathname === item.href 

@@ -1,6 +1,6 @@
-const express = require('express');
-const { generatePlan } = require('../services/aiService');
-const StudyPlan = require('../models/studyPlan');
+import express from 'express';
+import { generatePlan } from '../services/aiService.js';
+import StudyPlan from '../models/studyPlan.js';
 
 const router = express.Router();
 
@@ -125,4 +125,4 @@ router.delete('/:planId', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

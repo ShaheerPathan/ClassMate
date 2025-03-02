@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Lexend } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
-import { Header } from "@/components/Header";
 import { NextAuthProvider } from "@/providers/NextAuthProvider";
 import { PostHogProvider } from '@/components/posthog-provider';
 import dynamic from "next/dynamic";
@@ -38,10 +37,9 @@ export default function RootLayout({
       >
         <NextAuthProvider>
           <PostHogProvider>
-          <Header />
-          <PostHogPageView />
-          {children}
-          <Toaster />
+            <PostHogPageView />
+            {children}
+            <Toaster />
           </PostHogProvider>
         </NextAuthProvider>
       </body>

@@ -1,11 +1,13 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const { aiRateLimiter } = require('./services/aiService');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import { aiRateLimiter } from './services/aiService.js';
+import dotenv from 'dotenv';
+import curateResourcesRouter from './routes/curateResources.js';
+import generatePlanRouter from './routes/generatePlan.js';
 
-const curateResourcesRouter = require('./routes/curateResources');
-const generatePlanRouter = require('./routes/generatePlan');
+// Initialize dotenv
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
