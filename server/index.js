@@ -33,9 +33,6 @@ app.use(cors({
 
 app.use(express.json());
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(uploadsDir));
-
 // Apply rate limiter to AI-related routes
 app.use('/api/resources', aiRateLimiter);
 app.use('/api/study-plan', aiRateLimiter);
@@ -51,16 +48,6 @@ const limiter = rateLimit({
 
 // Apply rate limiter to all routes
 app.use(limiter);
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  const dbStatus = mongoose.connection.readyState === 1;
-  res.json({ 
-    status: 'ok',
-    message: 'Mind Mentor API is running',
-    database: dbStatus ? 'connected' : 'disconnected'
-  });
-});
 
 // Basic health check
 app.get('/', (req, res) => {
@@ -87,5 +74,5 @@ app.use((err, req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on port ${port} in ${process.env.NODE_ENV} mode`);
+  console.log(`Server is running on port ${port}`);
 });
