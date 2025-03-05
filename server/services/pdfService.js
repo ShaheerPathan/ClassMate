@@ -10,7 +10,6 @@ import NodeCache from 'node-cache';
 import dotenv from 'dotenv';
 import fs from 'fs/promises';
 import path from 'path';
-import PdfDocument from '../models/pdfDocument.js';
 
 dotenv.config();
 
@@ -136,88 +135,71 @@ async function ensureUploadsDirectory() {
   }
 }
 
-// Process text chunks in parallel batches
-async function processChunksInBatches(chunks, batchSize = 10) {
-  const results = [];
-  for (let i = 0; i < chunks.length; i += batchSize) {
-    const batch = chunks.slice(i, i + batchSize);
-    const batchResults = await Promise.all(
-      batch.map(async (chunk, index) => ({
-        pageContent: chunk.pageContent,
-        metadata: {
-          ...chunk.metadata,
-          page: Math.floor((i + index) / 2) + 1
-        }
-      }))
-    );
-    results.push(...batchResults);
-  }
-  return results;
-}
-
 /**
- * Process PDF file and create embeddings
+ * Process PDF file or buffer and create embeddings
  */
-export async function processPdf(filePath) {
+export async function processPdf(input) {
   try {
-    await ensureUploadsDirectory();
-
-    const normalizedPath = path.normalize(filePath);
-    const uploadsPath = path.normalize(uploadsDir);
+    let buffer;
     
-    if (!normalizedPath.startsWith(uploadsPath)) {
-      throw new Error('Invalid file path. Files must be in the uploads directory.');
+    if (Buffer.isBuffer(input)) {
+      buffer = input;
+    } else {
+      const normalizedPath = path.normalize(input);
+      const uploadsPath = path.normalize(uploadsDir);
+      
+      if (!normalizedPath.startsWith(uploadsPath)) {
+        throw new Error('Invalid file path. Files must be in the uploads directory.');
+      }
+
+      try {
+        await fs.access(normalizedPath);
+      } catch {
+        throw new Error(`PDF file not found at path: ${normalizedPath}`);
+      }
+
+      buffer = await fs.readFile(normalizedPath);
     }
 
-    try {
-      await fs.access(normalizedPath);
-    } catch {
-      throw new Error(`PDF file not found at path: ${normalizedPath}`);
-    }
-
-    // Read and parse PDF with optimized options
-    const buffer = await fs.readFile(normalizedPath);
+    // Parse PDF with optimized options
     const data = await pdfParse(buffer, PDF_OPTIONS);
 
     if (!data || !data.text) {
       throw new Error('PDF parsing resulted in no text content');
     }
 
-    // Split text into optimized chunks
+    // Get the text content per page
+    const pages = data.text.split(/\f/); // Split by form feed character which typically separates PDF pages
+
+    // Split text into optimized chunks with page tracking
     const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 2000, // Larger chunks for better context
-      chunkOverlap: 100, // Minimal overlap
+      chunkSize: 2000,
+      chunkOverlap: 100,
       separators: ['\n\n', '\n', '. ', ' ', ''],
       lengthFunction: (text) => text.length,
     });
 
-    const docs = await textSplitter.createDocuments([data.text]);
-
-    // Create initial chunks with metadata
-    const initialChunks = docs.map((doc, index) => ({
-      pageContent: doc.pageContent,
-      metadata: {
-        source: path.basename(normalizedPath),
-        pageNumber: Math.floor(index / 2) + 1
-      }
-    }));
-
-    // Process chunks in parallel batches
-    const documentChunks = await processChunksInBatches(initialChunks);
-
-    // Create vector store with HuggingFace embeddings
-    const vectorStore = await MemoryVectorStore.fromDocuments(
-      documentChunks,
-      embeddings
-    );
-
-    // Store the vector store with the filename as key
-    const filename = path.basename(normalizedPath);
-    vectorStores.set(filename, vectorStore);
+    // Process each page separately to maintain page numbers
+    let documentChunks = [];
+    for (let pageNum = 0; pageNum < pages.length; pageNum++) {
+      const pageText = pages[pageNum];
+      if (!pageText.trim()) continue; // Skip empty pages
+      
+      const pageChunks = await textSplitter.createDocuments([pageText]);
+      const pageChunksWithMetadata = pageChunks.map(chunk => ({
+        text: chunk.pageContent,
+        metadata: {
+          pageNumber: pageNum + 1,
+          location: `page_${pageNum + 1}`
+        }
+      }));
+      
+      documentChunks = documentChunks.concat(pageChunksWithMetadata);
+    }
 
     return {
       documentChunks,
-      pageCount: data.numpages || Math.ceil(docs.length / 2)
+      pageCount: data.numpages
     };
   } catch (error) {
     console.error('Error processing PDF:', error);
@@ -228,42 +210,32 @@ export async function processPdf(filePath) {
 /**
  * Chat with PDF using RAG
  */
-export async function chatWithPdf(filename, question, chatHistory = []) {
+export async function chatWithPdf(pdfInput, question, chatHistory = []) {
   try {
-    // Get the vector store for this document using just the filename
-    let vectorStore = vectorStores.get(filename);
-
-    if (!vectorStore) {
-      // Try to get document chunks from database first
-      const pdfDoc = await PdfDocument.findOne({ filename });
-      
-      if (!pdfDoc) {
-        throw new Error('PDF document not found in database');
-      }
-
-      if (pdfDoc.documentChunks && pdfDoc.documentChunks.length > 0) {
-        console.log('Recreating vector store from stored chunks for:', filename);
-        // Create vector store from stored chunks
-        vectorStore = await MemoryVectorStore.fromDocuments(
-          pdfDoc.documentChunks,
-          embeddings
-        );
-        vectorStores.set(filename, vectorStore);
-      } else {
-        // If no chunks in database, reprocess the document
-        console.log('No stored chunks found, reprocessing document:', filename);
-        const filePath = path.join(uploadsDir, filename);
-        const { documentChunks } = await processPdf(filePath);
-        vectorStore = await MemoryVectorStore.fromDocuments(
-          documentChunks,
-          embeddings
-        );
-        vectorStores.set(filename, vectorStore);
-      }
+    let buffer;
+    if (Buffer.isBuffer(pdfInput)) {
+      buffer = pdfInput;
+    } else {
+      buffer = base64ToBuffer(pdfInput);
     }
 
+    // Process the PDF to get chunks
+    const { documentChunks } = await processPdf(buffer);
+
+    // Convert chunks to the format expected by the vector store
+    const vectorStoreDocuments = documentChunks.map(chunk => ({
+      pageContent: chunk.text,
+      metadata: chunk.metadata
+    }));
+
+    // Create vector store from chunks
+    const vectorStore = await MemoryVectorStore.fromDocuments(
+      vectorStoreDocuments,
+      embeddings
+    );
+
     // Cache key for the query
-    const cacheKey = `pdf_query_${filename}_${question}_${chatHistory.length}`;
+    const cacheKey = `pdf_query_${question}_${chatHistory.length}`;
     const cachedResult = cache.get(cacheKey);
     if (cachedResult) {
       return cachedResult;
@@ -296,13 +268,16 @@ export async function chatWithPdf(filename, question, chatHistory = []) {
       retrievedDocs.map(doc => doc.metadata.pageNumber)
     )].sort((a, b) => a - b);
 
+    // Format sources for MongoDB storage
+    const formattedSources = retrievedDocs.map(doc => ({
+      page: doc.metadata.pageNumber,
+      content: doc.pageContent.substring(0, 150) + '...' // Preview of content
+    }));
+
     const result = {
       answer: response,
       sourcePages: sourcePages,
-      sources: retrievedDocs.map(doc => ({
-        page: doc.metadata.pageNumber,
-        content: doc.pageContent.substring(0, 150) + '...' // Preview of content
-      }))
+      sources: formattedSources
     };
 
     // Cache the result

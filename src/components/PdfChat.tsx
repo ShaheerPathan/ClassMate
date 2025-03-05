@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import PdfViewer from './PdfViewer';
 import ChatInterface from './ChatInterface';
 import PacmanLoader from 'react-spinners/PacmanLoader';
+import { Button } from "@/components/ui/button";
+import { FileText, MessageSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Source {
   page: number;
@@ -38,11 +41,20 @@ interface PdfChatProps {
 export default function PdfChat({ documentId }: PdfChatProps) {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [activeView, setActiveView] = useState<'pdf' | 'chat'>('pdf');
   const { toast } = useToast();
   const { data: session } = useSession();
+
+  // Memoize PdfViewer to prevent re-renders when chat state changes
+  const memoizedPdfViewer = useMemo(() => (
+    <PdfViewer
+      documentId={documentId}
+      currentPage={currentPage}
+      onPageChange={setCurrentPage}
+    />
+  ), [documentId, currentPage]);
 
   // Load chat history
   useEffect(() => {
@@ -104,12 +116,9 @@ export default function PdfChat({ documentId }: PdfChatProps) {
     }
   }, [documentId, toast, session?.user?.id]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || !session?.user?.id) return;
+  const handleSubmit = async (content: string) => {
+    if (!content.trim() || !session?.user?.id) return;
 
-    const userMessage = input;
-    setInput('');
     setLoading(true);
 
     try {
@@ -120,7 +129,7 @@ export default function PdfChat({ documentId }: PdfChatProps) {
           'Content-Type': 'application/json',
           'x-user-id': session.user.id,
         },
-        body: JSON.stringify({ content: userMessage }),
+        body: JSON.stringify({ content }),
       });
 
       if (!response.ok) {
@@ -129,24 +138,17 @@ export default function PdfChat({ documentId }: PdfChatProps) {
       }
 
       const data = await response.json();
-      console.log('Received chat response:', data); // Debug log
+      console.log('Received chat response:', data);
       
-      // Check if chatHistory is directly in the response or nested
       const chatHistory = Array.isArray(data) ? data : data.chatHistory;
       
       if (chatHistory) {
         const formattedHistory = chatHistory.map((msg: ServerMessage) => ({
           ...msg,
           timestamp: new Date(msg.timestamp),
-          sourcePages: msg.sourcePages || [] // Ensure sourcePages is always an array
+          sourcePages: msg.sourcePages || []
         }));
         setMessages(formattedHistory);
-
-        // If source pages are provided, jump to the first referenced page
-        const lastMessage = chatHistory[chatHistory.length - 1];
-        if (lastMessage && lastMessage.sourcePages?.length > 0) {
-          setCurrentPage(lastMessage.sourcePages[0]);
-        }
       } else {
         console.error('Invalid chat response format:', data);
         toast({
@@ -178,22 +180,47 @@ export default function PdfChat({ documentId }: PdfChatProps) {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] gap-4 p-4 bg-muted/10">
-      <div className="w-[55%] relative">
-        <PdfViewer
-          documentId={documentId}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-muted/10">
+      {/* Mobile View Selector */}
+      <div className="lg:hidden flex items-center justify-center gap-2 p-2 bg-background border-b">
+        <Button
+          variant={activeView === 'pdf' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setActiveView('pdf')}
+          className="flex-1 max-w-[160px]"
+        >
+          <FileText className="h-4 w-4 mr-2" />
+          Document
+        </Button>
+        <Button
+          variant={activeView === 'chat' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setActiveView('chat')}
+          className="flex-1 max-w-[160px]"
+        >
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Chat
+        </Button>
       </div>
-      <div className="w-[45%]">
-        <ChatInterface
-          messages={messages}
-          loading={loading}
-          input={input}
-          onInputChange={setInput}
-          onSubmit={handleSubmit}
-        />
+
+      {/* Content Area */}
+      <div className="flex flex-1 lg:gap-4 lg:p-4 overflow-hidden">
+        <div className={cn(
+          "lg:w-[55%] w-full transition-all duration-300",
+          activeView === 'pdf' ? 'block' : 'hidden lg:block'
+        )}>
+          {memoizedPdfViewer}
+        </div>
+        <div className={cn(
+          "lg:w-[45%] w-full transition-all duration-300",
+          activeView === 'chat' ? 'block' : 'hidden lg:block'
+        )}>
+          <ChatInterface
+            messages={messages}
+            loading={loading}
+            onSubmit={handleSubmit}
+          />
+        </div>
       </div>
     </div>
   );

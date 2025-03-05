@@ -1,44 +1,24 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
 import PdfDocument from '../models/pdfDocument.js';
-import { processPdf, cleanupFile } from '../services/pdfService.js';
-import { mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
+import { processPdf } from '../services/pdfService.js';
 import { chatWithPdf } from '../services/pdfService.js';
+import { bufferToBase64, base64ToBuffer } from '../services/storageService.js';
 
 const router = express.Router();
 
-// Define uploads directory path
-const uploadsDir = path.join(process.cwd(), 'uploads');
-
-// Ensure uploads directory exists
-if (!existsSync(uploadsDir)) {
-  await mkdir(uploadsDir, { recursive: true });
-}
-
-// Configure multer for PDF uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
+// Configure multer for memory storage
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  },
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/pdf') {
       cb(null, true);
     } else {
       cb(new Error('Only PDF files are allowed'), false);
     }
-  },
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
   }
 });
 
@@ -47,11 +27,11 @@ router.get('/', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
     if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
+      return res.status(401).json({ error: 'User ID is required' });
     }
 
     const pdfs = await PdfDocument.find({ userId })
-      .select('filename originalName pageCount createdAt')
+      .select('title pageCount createdAt')
       .sort({ createdAt: -1 });
 
     res.json({ pdfs });
@@ -66,7 +46,7 @@ router.get('/:id', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
     if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
+      return res.status(401).json({ error: 'User ID is required' });
     }
 
     const pdf = await PdfDocument.findOne({ 
@@ -75,16 +55,24 @@ router.get('/:id', async (req, res) => {
     });
 
     if (!pdf) {
-      return res.status(404).json({ error: 'PDF not found' });
+      return res.status(404).json({ error: 'Document not found' });
     }
 
-    // Send the PDF file with absolute path
-    const filePath = path.join(uploadsDir, pdf.filename);
-    if (!existsSync(filePath)) {
-      return res.status(404).json({ error: 'PDF file not found on server' });
+    if (!pdf.pdfData) {
+      return res.status(500).json({ error: 'PDF data is missing' });
     }
 
-    res.sendFile(filePath);
+    // Add validation for base64 data
+    if (!pdf.pdfData.startsWith('data:application/pdf;base64,')) {
+      return res.status(500).json({ error: 'Invalid PDF data format' });
+    }
+
+    // Return the full PDF data
+    res.json({ 
+      data: pdf.pdfData,
+      title: pdf.title,
+      pageCount: pdf.pageCount
+    });
   } catch (error) {
     console.error('Error fetching PDF:', error);
     res.status(500).json({ error: 'Failed to fetch PDF' });
@@ -94,47 +82,57 @@ router.get('/:id', async (req, res) => {
 // Upload and process PDF
 router.post('/upload', upload.single('pdf'), async (req, res) => {
   try {
+    console.log('Upload request received');
+
     if (!req.file) {
+      console.error('No file in request');
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
     const userId = req.headers['x-user-id'];
     if (!userId) {
-      // Clean up the uploaded file
-      await cleanupFile(req.file.path);
-      return res.status(400).json({ error: 'User ID is required' });
+      console.error('No user ID in request');
+      return res.status(401).json({ error: 'User ID is required' });
     }
 
-    const filePath = req.file.path;
-    
     try {
+      // Convert buffer to Base64
+      const pdfData = bufferToBase64(req.file.buffer);
+
       // Process PDF using the service
-      const { documentChunks, pageCount } = await processPdf(filePath);
+      const { documentChunks, pageCount } = await processPdf(req.file.buffer);
 
       // Create new PDF document in database
-      const pdfDoc = await PdfDocument.create({
-        userId: userId,
-        filename: req.file.filename,
-        originalName: req.file.originalname,
-        pageCount: pageCount,
-        documentChunks: documentChunks,
+      const pdfDoc = new PdfDocument({
+        userId,
+        title: req.file.originalname,
+        pdfData,
+        pageCount,
+        documentChunks,
         chatHistory: []
       });
 
+      await pdfDoc.save();
+
       res.json({
         _id: pdfDoc._id,
-        originalName: pdfDoc.originalName,
+        title: pdfDoc.title,
         pageCount: pdfDoc.pageCount,
         createdAt: pdfDoc.createdAt
       });
-    } catch (error) {
-      // Clean up the uploaded file if processing fails
-      await cleanupFile(filePath);
-      throw error;
+    } catch (processingError) {
+      console.error('Error processing PDF:', processingError);
+      res.status(500).json({ 
+        error: 'Error processing PDF file',
+        details: processingError.message 
+      });
     }
   } catch (error) {
-    console.error('Error processing PDF:', error);
-    res.status(500).json({ error: error.message || 'Error processing PDF' });
+    console.error('Error in upload route:', error);
+    res.status(500).json({ 
+      error: 'Server error during upload',
+      details: error.message 
+    });
   }
 });
 
@@ -143,10 +141,10 @@ router.delete('/:documentId', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
     if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
+      return res.status(401).json({ error: 'User ID is required' });
     }
 
-    const doc = await PdfDocument.findOne({
+    const doc = await PdfDocument.findOneAndDelete({
       _id: req.params.documentId,
       userId: userId
     });
@@ -155,16 +153,7 @@ router.delete('/:documentId', async (req, res) => {
       return res.status(404).json({ error: 'Document not found' });
     }
 
-    // Delete file from uploads directory
-    const filePath = path.join(uploadsDir, doc.filename);
-    if (existsSync(filePath)) {
-      await cleanupFile(filePath);
-    }
-
-    // Delete document from database
-    await doc.deleteOne();
-
-    res.json({ success: true });
+    res.json({ message: 'Document deleted successfully' });
   } catch (error) {
     console.error('Error deleting PDF:', error);
     res.status(500).json({ error: 'Error deleting PDF' });
@@ -176,7 +165,7 @@ router.post('/:id/chat', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
     if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
+      return res.status(401).json({ error: 'User ID is required' });
     }
 
     const pdf = await PdfDocument.findOne({ 
@@ -188,27 +177,21 @@ router.post('/:id/chat', async (req, res) => {
       return res.status(404).json({ error: 'PDF not found' });
     }
 
-    // Get the full file path
-    const filePath = path.join(uploadsDir, pdf.filename);
-    if (!existsSync(filePath)) {
-      return res.status(404).json({ error: 'PDF file not found on server' });
-    }
-
-    // Process the chat message
+    // Process the chat message using the PDF content
+    const pdfBuffer = base64ToBuffer(pdf.pdfData);
     const { answer, sourcePages, sources } = await chatWithPdf(
-      pdf.filename,
+      pdfBuffer,
       req.body.content,
       pdf.chatHistory
     );
 
-    // Add the user message to chat history
+    // Add messages to chat history
     pdf.chatHistory.push({
       role: 'user',
       content: req.body.content,
       timestamp: new Date()
     });
 
-    // Add the assistant's response to chat history
     pdf.chatHistory.push({
       role: 'assistant',
       content: answer,
@@ -236,7 +219,7 @@ router.get('/:documentId/history', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
     if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
+      return res.status(401).json({ error: 'User ID is required' });
     }
 
     const doc = await PdfDocument.findOne({

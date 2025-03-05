@@ -12,7 +12,7 @@ import PacmanLoader from 'react-spinners/PacmanLoader';
 
 interface PdfDocument {
   _id: string;
-  originalName: string;
+  title: string;
   pageCount: number;
   createdAt: string;
 }
@@ -99,17 +99,25 @@ export default function PdfListPage() {
     formData.append('pdf', file);
 
     try {
+      console.log('Uploading file:', file.name);
       const response = await fetch('/api/pdf/upload', {
         method: 'POST',
-        body: formData,
+        body: formData
       });
 
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        console.error('Error parsing response:', e);
+        throw new Error('Invalid server response');
+      }
+
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.error || 'Failed to upload PDF');
       }
 
-      const data = await response.json();
+      console.log('Upload successful:', data);
       setDocuments(prev => [...prev, data]);
       
       toast({
@@ -238,12 +246,12 @@ export default function PdfListPage() {
                       <div className="flex flex-col space-y-2">
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="font-semibold text-base line-clamp-2">
-                            {doc.originalName}
+                            {doc.title}
                           </h3>
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity -mr-2 -mt-2"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDelete(doc._id);
@@ -252,10 +260,9 @@ export default function PdfListPage() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>{doc.pageCount} pages</span>
-                          <span>•</span>
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
                           <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
+                          <span>{doc.pageCount} pages</span>
                         </div>
                       </div>
                     </div>

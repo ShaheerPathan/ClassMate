@@ -4,15 +4,12 @@ import { getToken } from 'next-auth/jwt';
 // List all PDFs
 export async function GET(req: NextRequest) {
   try {
-    console.log('Starting PDF fetch request');
     
     // Get the session token
     const token = await getToken({ 
       req,
       secret: process.env.NEXTAUTH_SECRET 
     });
-
-    console.log('Auth token status:', token ? 'present' : 'missing');
 
     if (!token || !token.id) {
       console.log('No authentication token or user ID found');
@@ -23,7 +20,6 @@ export async function GET(req: NextRequest) {
     }
 
     const apiUrl = process.env.API_URL || 'http://localhost:5000';
-    console.log('Making request to backend:', `${apiUrl}/pdf`);
     
     try {
       // Forward the request with user ID in headers
@@ -57,7 +53,6 @@ export async function GET(req: NextRequest) {
       }
 
       const data = await response.json();
-      console.log('Successfully fetched PDFs, count:', (data.pdfs || []).length);
       return NextResponse.json(data.pdfs || []);
     } catch (fetchError) {
       console.error('Error making backend request:', fetchError);

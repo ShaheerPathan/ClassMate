@@ -26,28 +26,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate file type
-    if (file.type !== 'application/pdf') {
-      return NextResponse.json(
-        { error: 'Only PDF files are allowed' },
-        { status: 400 }
-      );
-    }
-
-    // Validate file size (10MB limit)
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: 'File size must be less than 10MB' },
-        { status: 400 }
-      );
-    }
-
-    const apiUrl = process.env.API_URL || 'http://localhost:5000';
-    
     // Create a new FormData instance for the backend request
     const backendFormData = new FormData();
     backendFormData.append('pdf', file);
 
+    const apiUrl = process.env.API_URL || 'http://localhost:5000';
+    
     const response = await fetch(`${apiUrl}/pdf/upload`, {
       method: 'POST',
       headers: {
@@ -57,8 +41,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.error || 'Failed to upload PDF');
+      let errorMessage = 'Failed to upload PDF';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        console.error('Error parsing error response:', e);
+      }
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
