@@ -52,7 +52,23 @@ Mind Mentor is an intelligent study companion that leverages AI to transform the
   - Format-based organization
   - Topic relevance ranking
 
-### 3. User Experience 🎯
+### 3. Interactive PDF Chat Assistant 📄
+- **Document Analysis**
+  - Upload and process PDF documents
+  - AI-powered document comprehension
+  - Contextual question answering
+- **Smart Features**
+  - Source page references
+  - Relevant excerpt highlighting
+  - Chat history persistence
+  - Context-aware responses
+- **PDF Viewer Integration**
+  - Page navigation and tracking
+  - Zoom and rotation controls
+  - Fullscreen mode
+  - Synchronized chat and document view
+
+### 4. User Experience 🎯
 - **Modern Interface**
   - Clean, responsive design
   - Toast notifications
@@ -72,12 +88,17 @@ Mind Mentor is an intelligent study companion that leverages AI to transform the
   - Zustand for global state
   - React Query for server state
 - **Authentication**: NextAuth.js with JWT
+- **PDF Processing**:
+  - React-PDF for document viewing
+  - PDF.js for text extraction
+  - Custom chat interface
 
 ### Backend
 - **Runtime**: Node.js with Express
 - **Database**: MongoDB with Mongoose ODM
 - **AI Services**:
-  - Groq API for study plan generation
+  - Groq API for study plan generation and PDF analysis
+  - HuggingFace for document embeddings
   - Tavily API for resource curation
 - **Security**: 
   - JWT authentication
@@ -116,6 +137,7 @@ MONGODB_URI=your-mongodb-uri
 # AI Services
 GROQ_API_KEY=your-groq-api-key
 TAVILY_API_KEY=your-tavily-api-key
+HUGGINGFACE_API_KEY=your-huggingface-api-key
 ```
 
 Create `.env` file in server directory:
@@ -125,6 +147,7 @@ PORT=5000
 MONGODB_URI=your-mongodb-uri
 GROQ_API_KEY=your-groq-api-key
 TAVILY_API_KEY=your-tavily-api-key
+HUGGINGFACE_API_KEY=your-huggingface-api-key
 JWT_SECRET=your-jwt-secret
 ```
 
@@ -176,6 +199,13 @@ Used for:
 3. Use the search function to find specific content
 4. Export notes in various formats
 5. Access your notes across devices
+
+### PDF Chat Assistant
+1. Upload your PDF document
+2. Ask questions about the content
+3. View source pages and relevant excerpts
+4. Navigate through the document while chatting
+5. Access chat history for previous conversations
 
 ## Contributing
 
