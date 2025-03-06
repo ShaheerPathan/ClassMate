@@ -29,9 +29,7 @@ app.set('trust proxy', 1);
 
 // Middleware
 app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Accept', 'x-user-id', 'X-User-Id'],
+  origin: '*'
 }));
 
 app.use(express.json());
