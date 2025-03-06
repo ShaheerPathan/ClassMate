@@ -18,7 +18,7 @@ const cache = new NodeCache({ stdTTL: 3600 });
 
 // Initialize Groq
 const model = new ChatGroq({
-  apiKey: process.env.GROQ_API_KEY,
+  apiKey: process.env.GROQ_API_KEY_RAG,
   modelName: "llama-3.3-70b-versatile",
 });
 

@@ -222,6 +222,8 @@ export default function PdfChat({ documentId }: PdfChatProps) {
           />
         </div>
       </div>
+
+      
     </div>
   );
 } 

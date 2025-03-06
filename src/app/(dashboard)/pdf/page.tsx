@@ -221,7 +221,7 @@ export default function PdfListPage() {
         </div>
 
         {/* Content */}
-        <div className="min-h-[calc(100vh-16rem)] bg-card rounded-lg border shadow-sm">
+        <div className="min-h-[calc(100vh-16rem)] bg-card rounded-lg">
           {isLoading ? (
             <div className="flex justify-center items-center h-[calc(100vh-16rem)]">
               <PacmanLoader color="#538B81" />
@@ -237,33 +237,32 @@ export default function PdfListPage() {
                 {documents.map((doc) => (
                   <Card
                     key={doc._id}
-                    className="group relative overflow-hidden hover:shadow-md transition-all duration-200"
+                    className="group relative overflow-hidden hover:scale-105 transition-all duration-200"
                   >
-                    <div 
-                      className="p-4 cursor-pointer"
-                      onClick={() => router.push(`/pdf/${doc._id}`)}
-                    >
-                      <div className="flex flex-col space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold text-base line-clamp-2">
-                            {doc.title}
-                          </h3>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(doc._id);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <div className="flex items-center justify-between text-sm text-muted-foreground">
-                          <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
-                          <span>{doc.pageCount} pages</span>
-                        </div>
+                    <div className="p-4 flex flex-col space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 
+                          className="font-semibold text-base line-clamp-2 cursor-pointer flex-1"
+                          onClick={() => router.push(`/pdf/${doc._id}`)}
+                        >
+                          {doc.title}
+                        </h3>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity focus:opacity-100 touch-none"
+                          onClick={() => handleDelete(doc._id)}
+                          aria-label="Delete document"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive hover:text-destructive/80" />
+                        </Button>
+                      </div>
+                      <div 
+                        className="flex items-center justify-between text-sm text-muted-foreground cursor-pointer"
+                        onClick={() => router.push(`/pdf/${doc._id}`)}
+                      >
+                        <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
+                        <span>{doc.pageCount} pages</span>
                       </div>
                     </div>
                   </Card>

@@ -31,7 +31,10 @@ const cache = new NodeCache({ stdTTL: 1800 });
 const aiRateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again after an hour'
+  message: 'Too many requests from this IP, please try again after an hour',
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: true
 });
 
 // Create a custom HTTPS agent that doesn't reject unauthorized certificates

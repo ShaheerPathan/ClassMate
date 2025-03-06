@@ -24,6 +24,9 @@ if (!existsSync(uploadsDir)) {
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Trust proxy - required for rate limiting behind reverse proxies
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
   origin: '*',
@@ -33,21 +36,23 @@ app.use(cors({
 
 app.use(express.json());
 
-// Apply rate limiter to AI-related routes
-app.use('/api/resources', aiRateLimiter);
-app.use('/api/study-plan', aiRateLimiter);
-
 // Rate limiting configuration
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
-  message: 'Too many requests from this IP, please try again after 15 minutes'
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+  // Add trusted proxy configuration
+  trustProxy: true
 });
 
 // Apply rate limiter to all routes
 app.use(limiter);
+
+// Apply rate limiter to AI-related routes
+app.use('/api/resources', aiRateLimiter);
+app.use('/api/study-plan', aiRateLimiter);
 
 // Basic health check
 app.get('/', (req, res) => {

@@ -63,15 +63,15 @@ export default function ChatInterface({
   };
 
   return (
-    <div className="flex flex-col h-full bg-background rounded-lg shadow-lg border">
+    <div className="flex flex-col h-full bg-background rounded-lg border-2 border-black relative">
       {/* Chat Header */}
-      <div className="p-3 sm:p-4 border-b">
+      <div className="p-3 sm:p-4 border-b border-black">
         <h2 className="text-lg font-semibold">Scriba Assistant</h2>
         <p className="text-sm text-muted-foreground">Ask questions about your document</p>
       </div>
 
       {/* Messages Area */}
-      <ScrollArea className="flex-1 p-3 sm:p-4">
+      <ScrollArea className="flex-1 p-3 sm:p-4 pb-[80px] sm:pb-[88px]">
         <div className="space-y-4">
           {messages.map((message, index) => {
             const messageId = message._id || `msg-${index}`;
@@ -133,27 +133,28 @@ export default function ChatInterface({
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="p-3 sm:p-4 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 border-t border-black z-20">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask a question ..."
+            placeholder="Ask a question..."
             disabled={loading}
-            className="flex-1 h-10"
+            className="flex-1 h-12 text-base px-4 rounded-full border-2 focus-visible:ring-2"
           />
           <Button 
             type="submit" 
             disabled={loading || !input.trim()}
             size="default"
-            className="h-10 px-4"
+            className="h-12 px-6 rounded-full hover:scale-105 transition-transform active:scale-95 shadow-lg"
           >
             {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send className="h-5 w-5" />
             )}
+            <span className="ml-2 hidden sm:inline">Send</span>
           </Button>
         </form>
       </div>
