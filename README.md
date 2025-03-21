@@ -133,11 +133,6 @@ NEXTAUTH_SECRET=your-secret-key
 
 # Database
 MONGODB_URI=your-mongodb-uri
-
-# AI Services
-GROQ_API_KEY=your-groq-api-key
-TAVILY_API_KEY=your-tavily-api-key
-HUGGINGFACE_API_KEY=your-huggingface-api-key
 ```
 
 Create `.env` file in server directory:
