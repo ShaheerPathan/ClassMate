@@ -9,12 +9,6 @@ import https from 'https';
 // Initialize dotenv
 dotenv.config();
 
-// Debug log to verify environment variables
-console.log('Environment check:', {
-  hasGroqKey: !!process.env.GROQ_API_KEY,
-  keyLength: process.env.GROQ_API_KEY?.length
-});
-
 if (!process.env.GROQ_API_KEY) {
   throw new Error('GROQ_API_KEY is not set in environment variables');
 }

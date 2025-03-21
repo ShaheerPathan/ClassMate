@@ -1,12 +1,8 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-// Add this line to debug the URL
-console.log('API Base URL:', API_BASE_URL);
-
 export const apiClient = {
   async getCuratedResources(userId: string) {
     const url = `${API_BASE_URL}/curate-resources/${userId}`;
-    console.log('Making request to:', url); // Debug log
     
     const response = await fetch(url, {
       headers: {

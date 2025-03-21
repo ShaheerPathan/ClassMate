@@ -74,7 +74,6 @@ export default function PdfChat({ documentId }: PdfChatProps) {
         }
         
         const data = await response.json();
-        console.log('Received chat history:', data); // Debug log
         
         // Check if data is an array (direct chat history)
         if (Array.isArray(data)) {
@@ -93,7 +92,6 @@ export default function PdfChat({ documentId }: PdfChatProps) {
           }));
           setMessages(formattedHistory);
         } else {
-          console.log('No valid chat history found:', data);
           setMessages([]);
         }
       } catch (err) {
@@ -138,7 +136,6 @@ export default function PdfChat({ documentId }: PdfChatProps) {
       }
 
       const data = await response.json();
-      console.log('Received chat response:', data);
       
       const chatHistory = Array.isArray(data) ? data : data.chatHistory;
       

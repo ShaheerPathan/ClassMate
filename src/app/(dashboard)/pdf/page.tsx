@@ -99,7 +99,6 @@ export default function PdfListPage() {
     formData.append('pdf', file);
 
     try {
-      console.log('Uploading file:', file.name);
       const response = await fetch('/api/pdf/upload', {
         method: 'POST',
         body: formData
@@ -116,8 +115,7 @@ export default function PdfListPage() {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to upload PDF');
       }
-
-      console.log('Upload successful:', data);
+      
       setDocuments(prev => [...prev, data]);
       
       toast({
