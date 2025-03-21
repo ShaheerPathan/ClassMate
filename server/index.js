@@ -35,7 +35,8 @@ app.use(
   cors({
     origin: [
       "https://mind-mentor-pearl.vercel.app",
-      "https://mind-mentor.kartiklabhshetwar.me"
+      "https://mind-mentor.kartiklabhshetwar.me". 
+      "http://localhost:3000" , 
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
