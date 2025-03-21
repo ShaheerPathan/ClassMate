@@ -10,9 +10,6 @@ import rateLimit from 'express-rate-limit';
 import { mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
-import cookieParser from 'cookie-parser';
-import { authMiddleware } from './middleware/auth.js';
-
 // Load environment variables
 dotenv.config();
 
@@ -35,7 +32,8 @@ app.use(
   cors({
     origin: [
       "https://mind-mentor-pearl.vercel.app",
-      "https://mind-mentor.kartiklabhshetwar.me"
+      "https://mind-mentor.kartiklabhshetwar.me",
+      "http://localhost:3000",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
@@ -43,10 +41,6 @@ app.use(
   })
 );
 
-
-
-// Add cookie parser to handle auth cookies
-app.use(cookieParser());
 
 // Rate limiting configuration
 const limiter = rateLimit({
@@ -77,9 +71,9 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Apply routes directly without auth middleware
-app.use('/generate-plan', authMiddleware, generatePlanRouter);
-app.use('/curate-resources', authMiddleware, curateResourcesRouter);
-app.use('/pdf', authMiddleware, pdfChatRouter);
+app.use('/generate-plan', generatePlanRouter);
+app.use('/curate-resources', curateResourcesRouter);
+app.use('/pdf', pdfChatRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
