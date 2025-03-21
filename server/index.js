@@ -29,7 +29,9 @@ app.set('trust proxy', 1);
 
 // Middleware
 app.use(cors({
-  origin: '*'
+  origin: ['https://mind-mentor-pearl.vercel.app', 'https://mind-mentor.kartiklabhshetwar.me'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  credentials: true
 }));
 
 app.use(express.json());
