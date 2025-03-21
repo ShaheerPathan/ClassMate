@@ -10,6 +10,8 @@ import rateLimit from 'express-rate-limit';
 import { mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
+import cookieParser from 'cookie-parser';
+import { authMiddleware } from './middleware/auth.js';
 
 // Load environment variables
 dotenv.config();
@@ -26,15 +28,26 @@ const port = process.env.PORT || 5000;
 
 // Trust proxy - required for rate limiting behind reverse proxies
 app.set('trust proxy', 1);
+app.use(express.json());
 
 // Middleware
-app.use(cors({
-  origin: ['https://mind-mentor-pearl.vercel.app', 'https://mind-mentor.kartiklabhshetwar.me'],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "https://mind-mentor-pearl.vercel.app",
+      "https://mind-mentor.kartiklabhshetwar.me",
+      "http://localhost:3000",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-app.use(express.json());
+
+
+// Add cookie parser to handle auth cookies
+app.use(cookieParser());
 
 // Rate limiting configuration
 const limiter = rateLimit({
@@ -65,17 +78,14 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Apply routes directly without auth middleware
-app.use('/generate-plan', generatePlanRouter);
-app.use('/curate-resources', curateResourcesRouter);
-app.use('/pdf', pdfChatRouter);
+app.use('/generate-plan', authMiddleware, generatePlanRouter);
+app.use('/curate-resources', authMiddleware, curateResourcesRouter);
+app.use('/pdf', authMiddleware, pdfChatRouter);
 
 // Error handling middleware
-app.use((err, req, res) => {
-  console.error('Error:', err);
-  res.status(500).json({ 
-    success: false, 
-    error: err.message || 'Something went wrong!' 
-  });
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something went wrong!' });
 });
 
 app.listen(port, '0.0.0.0', () => {
