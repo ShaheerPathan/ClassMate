@@ -113,49 +113,47 @@ git clone https://github.com/KartikLabhshetwar/mind-mentor
 cd mind-mentor
 ```
 
-2. Install dependencies for both frontend and backend:
-```bash
-npm install
+2. Set up environment variables:
 
-cd server
-npm install
-```
-
-3. Set up environment variables:
-
-Create `.env.local` file with the following variables:
+Create `.env` file in the root directory with the following variables:
 
 ```env
-# Frontend Environment Variables
-NEXT_PUBLIC_API_URL=http://localhost:5000
-NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your-secret-key
-
-# Database
 MONGODB_URI=your-mongodb-uri
-```
-
-Create `.env` file in server directory:
-
-```env
-PORT=5000
-MONGODB_URI=your-mongodb-uri
+NEXTAUTH_URL=http://localhost:3000
+EXPRESS_BACKEND_URL=http://backend:5000
+NEXT_PUBLIC_POSTHOG_KEY=your-posthog-key
+NEXT_PUBLIC_POSTHOG_HOST=your-posthog-host
+NEXT_PUBLIC_API_URL=http://backend:5000
+API_URL=http://backend:5000
 GROQ_API_KEY=your-groq-api-key
+GROQ_API_KEY_RAG=your-groq-rag-api-key
 TAVILY_API_KEY=your-tavily-api-key
 HUGGINGFACE_API_KEY=your-huggingface-api-key
-JWT_SECRET=your-jwt-secret
 ```
 
-4. Start the development servers:
+3. Build and run with Docker Compose:
+
+```bash
+docker-compose up --build
+```
+
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:5000
+
+4. For development without Docker:
 
 Frontend:
 ```bash
+npm install
 npm run dev
 ```
 
 Backend:
 ```bash
 cd server
+npm install
 npm run dev
 ```
 
