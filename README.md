@@ -132,30 +132,22 @@ TAVILY_API_KEY=your-tavily-api-key
 HUGGINGFACE_API_KEY=your-huggingface-api-key
 ```
 
-3. Build and run with Docker Compose:
+3. Build with Docker Compose:
 
 ```bash
-docker-compose up --build
+docker compose build
+```
+
+4. Run with Docker Compose:
+
+```bash
+docker compose up -d
 ```
 
 The application will be available at:
+
 - Frontend: http://localhost:3000
 - Backend: http://localhost:5000
-
-4. For development without Docker:
-
-Frontend:
-```bash
-npm install
-npm run dev
-```
-
-Backend:
-```bash
-cd server
-npm install
-npm run dev
-```
 
 ## API Integration
 
@@ -212,7 +204,7 @@ We welcome contributions! Please follow these steps:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
