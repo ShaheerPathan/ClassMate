@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Mind Mentor - Your AI Study Assistant",
     description: "Accelerate your learning with AI-powered study plans and resources",
-    images: ['/thumbnail.png'],
+    images: '/thumbnail.png',
   }
 };
 
