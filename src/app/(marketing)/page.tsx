@@ -6,7 +6,7 @@ import { FeaturesGrid } from '@/components/sections/FeatureGrid'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { ReviewMarquee } from "@/components/ReviewMarquee"
+import SocialWall from "@/components/SocialWall"
 import { Video } from "@/components/Video"
 import { FaqSection } from "@/components/sections/FaqSection"
 
@@ -57,11 +57,11 @@ export default function Page() {
         <Video />
       </section>
 
-      <section className="py-12 sm:py-20">
+      <section className="py-8 sm:py-20">
         <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
           What Our Users Say
         </h2>
-        <ReviewMarquee />
+        <SocialWall />
       </section>
 
       <FaqSection />
