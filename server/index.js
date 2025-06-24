@@ -34,6 +34,7 @@ app.use(
       "https://mind-mentor-pearl.vercel.app",
       "https://mind-mentor.kartiklabhshetwar.me",
       "http://localhost:3000",
+      "https://www.mind-mentor.ink/",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
