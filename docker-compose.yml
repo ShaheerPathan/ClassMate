@@ -42,8 +42,8 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/pdf/health"]
-      interval: 30s
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 2m
       timeout: 10s
       retries: 3
       start_period: 60s

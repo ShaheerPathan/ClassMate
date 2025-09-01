@@ -67,6 +67,15 @@ app.get('/', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Mind Mentor API is running' });
 });
 
+// Lightweight health check for Docker (no embeddings)
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'Mind Mentor API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
@@ -78,7 +87,7 @@ app.use('/curate-resources', curateResourcesRouter);
 app.use('/pdf', pdfChatRouter);
 
 // Error handling middleware
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Something went wrong!' });
 });

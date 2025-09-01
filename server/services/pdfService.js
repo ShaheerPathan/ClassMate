@@ -55,6 +55,15 @@ const embeddings = new TransformersEmbeddingsAdapter();
 // Vector store to hold embeddings
 const vectorStores = new Map();
 
+// Clean up old vector stores periodically to prevent memory leaks
+setInterval(() => {
+  if (vectorStores.size > 10) { // Keep max 10 PDFs in memory
+    const oldestKey = vectorStores.keys().next().value;
+    vectorStores.delete(oldestKey);
+    console.log('🧹 Cleaned up old vector store to free memory');
+  }
+}, 300000); // Run every 5 minutes
+
 // Define uploads directory path
 const uploadsDir = path.join(process.cwd(), 'uploads');
 
@@ -241,25 +250,43 @@ export async function chatWithPdf(pdfInput, question, chatHistory = []) {
       buffer = base64ToBuffer(pdfInput);
     }
 
-    // Process the PDF to get chunks
-    const { documentChunks } = await processPdf(buffer);
+    // Generate a hash of the PDF content for caching
+    const crypto = await import('crypto');
+    const pdfHash = crypto.createHash('md5').update(buffer).digest('hex');
+    
+    // Check if we have a cached vector store for this PDF
+    let vectorStore = vectorStores.get(pdfHash);
+    
+    if (!vectorStore) {
+      console.log('🔄 Creating new vector store for PDF...');
+      
+      // Process the PDF to get chunks
+      const { documentChunks } = await processPdf(buffer);
 
-    // Convert chunks to the format expected by the vector store
-    const vectorStoreDocuments = documentChunks.map(chunk => ({
-      pageContent: chunk.text,
-      metadata: chunk.metadata
-    }));
+      // Convert chunks to the format expected by the vector store
+      const vectorStoreDocuments = documentChunks.map(chunk => ({
+        pageContent: chunk.text,
+        metadata: chunk.metadata
+      }));
 
-    // Create vector store from chunks using Transformers.js embeddings
-    const vectorStore = await MemoryVectorStore.fromDocuments(
-      vectorStoreDocuments,
-      embeddings
-    );
+      // Create vector store from chunks using Transformers.js embeddings
+      vectorStore = await MemoryVectorStore.fromDocuments(
+        vectorStoreDocuments,
+        embeddings
+      );
+      
+      // Cache the vector store
+      vectorStores.set(pdfHash, vectorStore);
+      console.log('✅ Vector store created and cached');
+    } else {
+      console.log('✅ Using cached vector store');
+    }
 
     // Cache key for the query
-    const cacheKey = `pdf_query_${question}_${chatHistory.length}`;
+    const cacheKey = `pdf_query_${pdfHash}_${question}_${chatHistory.length}`;
     const cachedResult = cache.get(cacheKey);
     if (cachedResult) {
+      console.log('✅ Using cached query result');
       return cachedResult;
     }
 

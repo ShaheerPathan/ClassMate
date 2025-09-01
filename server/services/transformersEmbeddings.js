@@ -14,6 +14,7 @@ class TransformersEmbeddings {
     this.modelName = process.env.EMBEDDING_MODEL || 'Xenova/all-MiniLM-L6-v2';
     this.isInitialized = false;
     this.initializationPromise = null;
+    this._cachedDimension = null; // Cache the dimension for health checks
   }
 
   /**
@@ -131,9 +132,15 @@ class TransformersEmbeddings {
     try {
       await this.initialize();
       
-      // Generate a test embedding to get the dimension
+      // Cache the dimension to avoid regenerating embeddings
+      if (this._cachedDimension) {
+        return this._cachedDimension;
+      }
+      
+      // Generate a test embedding to get the dimension only once
       const testEmbedding = await this.embedQuery('test');
-      return testEmbedding.length;
+      this._cachedDimension = testEmbedding.length;
+      return this._cachedDimension;
     } catch (error) {
       console.error('Error getting embedding dimension:', error);
       throw new Error(`Failed to get embedding dimension: ${error.message}`);
