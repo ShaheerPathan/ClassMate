@@ -21,7 +21,7 @@ if (!existsSync(uploadsDir)) {
 }
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8000;
 
 // Trust proxy - required for rate limiting behind reverse proxies
 app.set('trust proxy', 1);

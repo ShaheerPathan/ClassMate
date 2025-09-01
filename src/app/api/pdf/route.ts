@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const apiUrl = process.env.API_URL || 'http://localhost:5000';
+    const apiUrl = process.env.API_URL || 'http://localhost:8000';
     
     try {
       // Forward the request with user ID in headers
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    const apiUrl = process.env.API_URL || 'http://localhost:5000';
+    const apiUrl = process.env.API_URL || 'http://localhost:8000';
     
     const response = await fetch(`${apiUrl}/pdf/upload`, {
       method: 'POST',
@@ -136,7 +136,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const apiUrl = process.env.API_URL || 'http://localhost:5000';
+    const apiUrl = process.env.API_URL || 'http://localhost:8000';
     
     const response = await fetch(`${apiUrl}/pdf/${id}`, {
       method: 'DELETE',

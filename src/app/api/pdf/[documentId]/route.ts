@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const documentId = params.documentId;
-    const apiUrl = process.env.API_URL || 'http://localhost:5000';
+    const apiUrl = process.env.API_URL || 'http://localhost:8000';
     
     // Forward the request with user ID in headers
     const response = await fetch(`${apiUrl}/pdf/${documentId}`, {
@@ -77,7 +77,7 @@ export async function POST(
     }
 
     const body = await req.json();
-    const apiUrl = process.env.API_URL || 'http://localhost:5000';
+    const apiUrl = process.env.API_URL || 'http://localhost:8000';
     
     const response = await fetch(
       `${apiUrl}/pdf/${params.documentId}/chat`,

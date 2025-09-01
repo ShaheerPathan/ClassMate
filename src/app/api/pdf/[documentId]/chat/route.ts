@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
-const apiUrl = process.env.API_URL || 'http://localhost:5000';
+const apiUrl = process.env.API_URL || 'http://localhost:8000';
 
 export async function POST(
   request: NextRequest,
