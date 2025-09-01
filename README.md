@@ -121,15 +121,14 @@ Create `.env` file in the root directory with the following variables:
 NEXTAUTH_SECRET=your-secret-key
 MONGODB_URI=your-mongodb-uri
 NEXTAUTH_URL=http://localhost:3000
-EXPRESS_BACKEND_URL=http://backend:5000
+EXPRESS_BACKEND_URL=http://backend:8000
 NEXT_PUBLIC_POSTHOG_KEY=your-posthog-key
 NEXT_PUBLIC_POSTHOG_HOST=your-posthog-host
-NEXT_PUBLIC_API_URL=http://backend:5000
-API_URL=http://backend:5000
+NEXT_PUBLIC_API_URL=http://backend:8000
+API_URL=http://backend:8000
 GROQ_API_KEY=your-groq-api-key
 GROQ_API_KEY_RAG=your-groq-rag-api-key
 TAVILY_API_KEY=your-tavily-api-key
-HUGGINGFACE_API_KEY=your-huggingface-api-key
 ```
 
 3. Build with Docker Compose:

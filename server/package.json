@@ -13,7 +13,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@huggingface/inference": "^2.6.4",
     "@langchain/community": "^0.0.27",
     "@langchain/groq": "^0.0.1",
     "cors": "^2.8.5",
@@ -27,7 +26,9 @@
     "multer": "^1.4.5-lts.1",
     "node-cache": "^5.1.2",
     "node-fetch": "^3.3.2",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "axios": "^1.11.0",
+    "@xenova/transformers": "^2.15.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.3"

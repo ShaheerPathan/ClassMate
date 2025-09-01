@@ -4,6 +4,7 @@ import PdfDocument from '../models/pdfDocument.js';
 import { processPdf } from '../services/pdfService.js';
 import { chatWithPdf } from '../services/pdfService.js';
 import { bufferToBase64, base64ToBuffer } from '../services/storageService.js';
+import transformersEmbeddings from '../services/transformersEmbeddings.js';
 
 const router = express.Router();
 
@@ -19,6 +20,30 @@ const upload = multer({
     } else {
       cb(new Error('Only PDF files are allowed'), false);
     }
+  }
+});
+
+// Health check endpoint for Transformers.js embeddings
+router.get('/health', async (req, res) => {
+  try {
+    const health = await transformersEmbeddings.healthCheck();
+    const serviceInfo = await transformersEmbeddings.getServiceInfo();
+    
+    res.json({
+      status: health.status === 'healthy' ? 'healthy' : 'unhealthy',
+      embeddings: {
+        health: health,
+        info: serviceInfo
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Health check error:', error);
+    res.status(500).json({
+      status: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 

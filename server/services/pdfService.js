@@ -4,12 +4,12 @@ import { ChatGroq } from '@langchain/groq';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { HuggingFaceInferenceEmbeddings } from '@langchain/community/embeddings/hf';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import NodeCache from 'node-cache';
 import dotenv from 'dotenv';
 import fs from 'fs/promises';
 import path from 'path';
+import transformersEmbeddings from './transformersEmbeddings.js';
 
 dotenv.config();
 
@@ -22,13 +22,35 @@ const model = new ChatGroq({
   modelName: "llama-3.3-70b-versatile",
 });
 
-// Initialize HuggingFace embeddings with optimized settings
-const embeddings = new HuggingFaceInferenceEmbeddings({
-  apiKey: process.env.HUGGINGFACE_API_KEY,
-  model: "sentence-transformers/all-MiniLM-L6-v2",
-  batchSize: 512, // Process more text at once
-  stripNewLines: true // Remove unnecessary newlines
-});
+// Custom embeddings class that uses Transformers.js
+class TransformersEmbeddingsAdapter {
+  constructor() {
+    this.transformersService = transformersEmbeddings;
+  }
+
+  async embedDocuments(texts) {
+    try {
+      const embeddings = await this.transformersService.embedDocuments(texts);
+      return embeddings;
+    } catch (error) {
+      console.error('Error generating embeddings:', error);
+      throw new Error(`Failed to generate embeddings: ${error.message}`);
+    }
+  }
+
+  async embedQuery(text) {
+    try {
+      const embeddings = await this.transformersService.embedQuery(text);
+      return embeddings;
+    } catch (error) {
+      console.error('Error generating query embedding:', error);
+      throw new Error(`Failed to generate query embedding: ${error.message}`);
+    }
+  }
+}
+
+// Initialize embeddings with Transformers.js service
+const embeddings = new TransformersEmbeddingsAdapter();
 
 // Vector store to hold embeddings
 const vectorStores = new Map();
@@ -228,7 +250,7 @@ export async function chatWithPdf(pdfInput, question, chatHistory = []) {
       metadata: chunk.metadata
     }));
 
-    // Create vector store from chunks
+    // Create vector store from chunks using Transformers.js embeddings
     const vectorStore = await MemoryVectorStore.fromDocuments(
       vectorStoreDocuments,
       embeddings
