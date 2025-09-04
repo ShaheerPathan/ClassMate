@@ -113,8 +113,8 @@ export function StudyTimer() {
           className={cn(
             "relative p-4 sm:p-8 rounded-lg cursor-pointer transition-colors",
             timer.mode === 'focus' 
-              ? "bg-[#EFE9D5] hover:bg-[#F5F1EA]" 
-              : "bg-[#EFE9D5] hover:bg-[#F5F1EA]"
+              ? "bg-white hover:bg-[#F5F1EA]" 
+              : "bg-white hover:bg-[#F5F1EA]"
           )}
           onClick={handleModeSwitch}
         >

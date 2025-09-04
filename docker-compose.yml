@@ -1,7 +1,10 @@
+name: ClassMate
 version: '3.8'
 
 services:
   frontend:
+    container_name: classmate-frontend
+    image: classmate-frontend:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -23,6 +26,8 @@ services:
       - app-network
 
   backend:
+    container_name: classmate-backend
+    image: classmate-backend:latest
     build:
       context: ./server
       dockerfile: Dockerfile

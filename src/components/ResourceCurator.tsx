@@ -109,7 +109,7 @@ export default function ResourceCurator({ onCreateResources }: ResourceCuratorPr
                       href={resource.link} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="inline-flex items-center text-[#7fb236] hover:text-[#6f9826] hover:underline text-sm sm:text-base"
+                      className="inline-flex items-center text-primary hover:text-primary/90 hover:underline text-sm sm:text-base"
                     >
                       Learn More →
                     </a>

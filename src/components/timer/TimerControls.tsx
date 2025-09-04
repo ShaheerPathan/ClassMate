@@ -20,7 +20,7 @@ export default function TimerControls({ isActive, onToggle, onReset }: TimerCont
     <div className="flex justify-center gap-4">
       <Button
         onClick={onToggle}
-        className="w-32 bg-[#c1ff72] hover:bg-[#b1ef62] text-black"
+        className="w-32 bg-primary hover:bg-primary/90 text-primary-foreground"
       >
         {isActive ? (
           <>

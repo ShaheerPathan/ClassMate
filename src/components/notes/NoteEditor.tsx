@@ -80,7 +80,7 @@ export default function NoteEditor({ note, onSave, onCancel }: NoteEditorProps) 
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Start writing your note here..."
-        className="w-full h-[calc(100vh-20rem)] p-4 border bg-[#EFE9D5] rounded resize-none focus:outline-none"
+        className="w-full h-[calc(100vh-20rem)] p-4 border bg-white rounded resize-none focus:outline-none"
       />
 
       <div className="flex justify-end gap-2">

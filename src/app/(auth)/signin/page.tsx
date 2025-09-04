@@ -17,10 +17,10 @@ export default function SignInPage() {
   }, [session, router])
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-6 sm:py-12 bg-[#EFE9D5] px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col items-center justify-center min-h-screen py-6 sm:py-12 bg-white px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">
-          Welcome to Mind Mentor
+          Welcome to ClassMate
         </h2>
         <p className="mt-2 text-center text-xs sm:text-sm text-gray-600">
           Let&apos;s get started with your study journey
@@ -32,7 +32,7 @@ export default function SignInPage() {
           <SignInForm />
            <p className="mt-4 text-center text-xs sm:text-sm text-gray-600">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-[#7fb236] hover:underline">
+            <Link href="/register" className="text-primary hover:underline">
               Sign up
             </Link>
           </p>

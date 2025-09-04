@@ -10,13 +10,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[var(--color-teal-900)] text-white hover:bg-[var(--color-teal-800)] border-2 border-b-4 border-r-4 border-[var(--color-navy-900)] rounded-lg hover:translate-y-[2px] hover:translate-x-[-2px] hover:border-b-2 hover:border-r-2 transition-all duration-100 shadow-sm hover:shadow active:translate-y-[2px] active:translate-x-[-2px] active:border-b-2 active:border-r-2",
+          "bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-b-4 border-r-4 border-black rounded-lg hover:translate-y-[2px] hover:translate-x-[-2px] hover:border-b-2 hover:border-r-2 transition-all duration-100 shadow-sm hover:shadow active:translate-y-[2px] active:translate-x-[-2px] active:border-b-2 active:border-r-2",
         destructive:
-          "bg-destructive text-destructive-foreground border-2 border-b-4 border-r-4 border-[var(--color-navy-900)] shadow-sm hover:bg-destructive/90 hover:border-b-2 hover:border-r-2",
+          "bg-destructive text-destructive-foreground border-2 border-b-4 border-r-4 border-black shadow-sm hover:bg-destructive/90 hover:border-b-2 hover:border-r-2",
         outline:
-          "border-2 border-b-4 border-r-4 border-[var(--color-navy-900)] bg-background shadow-sm hover:bg-accent hover:text-accent-foreground hover:border-b-2 hover:border-r-2",
+          "border-2 border-b-4 border-r-4 border-black bg-background shadow-sm hover:bg-accent hover:text-accent-foreground hover:border-b-2 hover:border-r-2",
         secondary:
-          "bg-[var(--color-lavender-700)] text-[var(--color-teal-900)] border-2 border-b-4 border-r-4 border-[var(--color-navy-900)] hover:bg-[var(--color-lavender-500)]",
+          "bg-secondary text-secondary-foreground border-2 border-b-4 border-r-4 border-black hover:bg-secondary/80",
         ghost: "border-2 border-transparent hover:bg-accent hover:text-accent-foreground hover:border-accent",
         link: "text-primary underline-offset-4 hover:underline",
       },

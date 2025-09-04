@@ -4,87 +4,66 @@
 
 @layer base {
   :root {
-    /* Base Colors */
-    --color-navy-900: #27445D;
-    --color-navy-800: #2D4D69;
-    --color-navy-700: #335775;
-    
-    --color-teal-900: #497D74;
-    --color-teal-800: #538B81;
-    --color-teal-700: #5D998E;
-    
-    --color-aqua-900: #71BBB2;
-    --color-aqua-700: #8AC7C0;
-    --color-aqua-500: #A3D3CD;
-    --color-aqua-300: #BCDFD9;
-    --color-aqua-100: #D5EBE7;
-    
-    --color-cream-900: #EFE9D5;
-    --color-cream-700: #F2EDE0;
-    --color-cream-500: #F5F1EA;
-    --color-cream-300: #F8F5F1;
-    --color-cream-100: #FBFAF8;
-    
-    /* System colors mapped to new scheme */
-    --background: var(--color-cream-900);
-    --foreground: var(--color-navy-900);
-    
-    --card: white;
-    --card-foreground: var(--color-navy-900);
-    
-    --popover: white;
-    --popover-foreground: var(--color-navy-900);
-    
-    --primary: var(--color-navy-900);
-    --primary-foreground: white;
-    
-    --secondary: var(--color-teal-900);
-    --secondary-foreground: white;
-    
-    --muted: var(--color-cream-700);
-    --muted-foreground: var(--color-navy-800);
-    
-    --accent: var(--color-aqua-500);
-    --accent-foreground: var(--color-navy-900);
-    
-    --destructive: #b9004b;
-    --destructive-foreground: white;
+    /* New HSL-based light theme */
+    --background: 0 0% 100%; /* white */
+    --foreground: 222 47% 11%; /* slate-900 */
 
-    --border: var(--color-aqua-300);
-    --input: var(--color-aqua-300);
-    --ring: var(--color-navy-900);
-    
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 221 83% 53%; /* blue-600 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 13% 91%; /* slate-200 */
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 220 14% 96%; /* slate-100 */
+    --muted-foreground: 215 20% 35%; /* slate-600 */
+
+    --accent: 221 83% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%; /* red-500 */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 221 83% 53%;
+
     --radius: 0.5rem;
   }
  
   .dark {
-    --background: var(--color-navy-900);
-    --foreground: white;
-    
-    --card: var(--color-navy-800);
-    --card-foreground: white;
-    
-    --popover: var(--color-navy-800);
-    --popover-foreground: white;
-    
-    --primary: var(--color-aqua-500);
-    --primary-foreground: var(--color-navy-900);
-    
-    --secondary: var(--color-navy-800);
-    --secondary-foreground: white;
-    
-    --muted: var(--color-navy-800);
-    --muted-foreground: var(--color-cream-900);
-    
-    --accent: var(--color-navy-800);
-    --accent-foreground: white;
-    
-    --destructive: #ff6b9a;
-    --destructive-foreground: white;
-    
-    --border: var(--color-navy-800);
-    --input: var(--color-navy-800);
-    --ring: var(--color-aqua-500);
+    --background: 222 47% 11%; /* slate-900 */
+    --foreground: 210 40% 98%; /* zinc-50 */
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%; /* blue-500 */
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 33% 17%; /* slate-800 */
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 91% 60%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 93% 71%;
+    --destructive-foreground: 0 0% 0%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 217 91% 60%;
   }
 }
 

@@ -6,8 +6,7 @@ import { FeaturesGrid } from '@/components/sections/FeatureGrid'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import SocialWall from "@/components/SocialWall"
-import { Video } from "@/components/Video"
+// Removed SocialWall and Video sections
 import { FaqSection } from "@/components/sections/FaqSection"
 
 export default function Page() {
@@ -22,47 +21,33 @@ export default function Page() {
 
   const features = [
     {
-      icon: <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-[#7fb236]" />,
+      icon: <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />,
       title: "Personalized Study Plans", 
       description: "Get tailored study plans based on your goals and learning style."
     },
     {
-      icon: <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-[#7fb236]" />,
+      icon: <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />,
       title: "AI-Curated Resources",
       description: "Access the best learning materials curated by our AI."
     },
     {
-      icon: <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-[#7fb236]" />,
+      icon: <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />,
       title: "Time Management",
       description: "Manage your time effectively and stay on top of your studies."
     }
   ]
 
   return (
-    <div className="container mx-auto px-4 py-8 sm:py-16 bg-[#EFE9D5]">
+    <div className="container mx-auto px-4 py-8 sm:py-16 bg-white">
       <HeroSection
         title="Welcome to"
-        highlightedText="Mind Mentor"
+        highlightedText="ClassMate"
         description="Your AI-powered study assistant for accelerated learning"
         ctaText={session ? "Go to Dashboard" : "Get Started"}
         ctaLink={session ? "/home" : "/register"}
       />
       
       <FeaturesGrid features={features} />
-
-      <section className="py-12 sm:py-20">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8">
-          See Mind Mentor in Action
-        </h2>
-        <Video />
-      </section>
-
-      <section className="py-8 sm:py-20">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
-          What Our Users Say
-        </h2>
-        <SocialWall />
-      </section>
 
       <FaqSection />
     </div>
